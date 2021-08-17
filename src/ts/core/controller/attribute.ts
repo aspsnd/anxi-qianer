@@ -3,10 +3,10 @@ import { Atom } from "../chain/atom";
 import { Controller } from "./controller";
 
 export class AttributeController<A extends string = string> extends Controller {
-  attrs: { [key in A]?: Attribute } = {}
-  attrArray: Attribute[] = []
+  attrs: { [key in A]?: Attribute<A> } = {}
+  attrArray: Attribute<A>[] = []
   needCompute = false
-  relyChain: { [key in A]?: Set<Attribute> } = {}
+  relyChain: { [key in A]?: Attribute<A>[] } = {}
   constructor(atom: Atom, block: Record<A, number>) {
     super(atom);
     this.from(block);
@@ -30,13 +30,29 @@ export class AttributeController<A extends string = string> extends Controller {
     super.init();
   }
   compute() {
-    for(const attr of this.attrArray){
-      attr.caculate();
+    let needComputeAttr = new Set(this.attrArray);
+    while (needComputeAttr.size > 0) {
+      let nextNeedComputeAttr = new Set<Attribute<A>>();
+      for (const attr of needComputeAttr) {
+        const changed = attr.caculate();
+        if (changed) {
+          for (const a of this.relyChain[attr.name]!) {
+            nextNeedComputeAttr.add(a);
+          }
+        }
+      }
+      needComputeAttr = nextNeedComputeAttr;
     }
+
+    for (const attr of this.attrArray) {
+      attr.caculateAnnoy();
+    }
+
     this.needCompute = false;
+
   }
   computeAbsolutely() {
-    for(const attr of this.attrArray){
+    for (const attr of this.attrArray) {
       attr.caculate();
     }
     this.needCompute = false;

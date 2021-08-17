@@ -5,7 +5,7 @@ export interface AttributeCaculator {
   (controller: AttributeController, attr: Attribute): void
 }
 
-export class Attribute {
+export class Attribute<A extends string = string> {
 
   //计算出的基础属性值
   base = 0
@@ -32,11 +32,11 @@ export class Attribute {
    * 该计算发生在最后，任意的计算结果都不会抛出属性值改变的事件
    */
   annoyCaculators: AttributeCaculator[] = []
-  constructor(public name: string, public controller: AttributeController) { }
+  constructor(public name: A, public controller: AttributeController<A>) { }
   //对属性值进行计算
   caculate() {
     const oldValue = this.value;
-    
+
     this.base = this.extra = this.finalBase = this.finalExtra = this.value = 0;
     this.baseRate = this.extraRate = 1;
 
@@ -53,20 +53,37 @@ export class Attribute {
 
     if (this.value !== oldValue) {
       this.controller.emit(new AnxiEvent(`${this.name}change`, [oldValue, this.value]));
+      return true;
     }
+    return false;
 
+
+  }
+
+  caculateAnnoy() {
     for (const caculator of this.annoyCaculators) {
       caculator(this.controller, this);
     }
 
     this.value = this.finalBase + this.finalExtra;
-
   }
-  rely(attr: string) {
-    if (!this.controller.relyChain[attr]) {
-      this.controller.relyChain[attr] = new Set();
+
+  rely(...attrs: A[]) {
+    for (const attr of attrs) {
+      if (!this.controller.relyChain[attr]) {
+        this.controller.relyChain[attr] = [];
+      }
+      this.controller.relyChain[attr]!.push(this);
     }
-    this.controller.relyChain[attr]!.add(this);
+  }
+  removeRely(...attrs: A[]) {
+    for (const attr of attrs) {
+      let attrs = this.controller.relyChain[attr];
+      if (!attrs) {
+        attrs = this.controller.relyChain[attr] = [];
+      }
+      attrs.splice(attrs.indexOf(this), 1);
+    }
   }
   addCommonCaculator(func: AttributeCaculator) {
     this.commonCaculators.push(func);
