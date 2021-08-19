@@ -1,5 +1,6 @@
 import { AnxiEvent } from './event';
-import { AnxiPlainListener, AsyncAnxiListener, AnxiPlainHandler, AsyncAnxiHandler, AnxiListener } from './eventer.d';
+import type { AnxiPlainListener, AsyncAnxiListener, AnxiPlainHandler, AsyncAnxiHandler, AnxiListener } from './eventerd';
+export type { AnxiPlainListener, AsyncAnxiListener, AnxiPlainHandler, AsyncAnxiHandler, AnxiListener } from './eventerd';
 /**
  * - 支持异步事件
  * - 支持事件拦截
@@ -16,6 +17,8 @@ export class AnxiEventer<EventName = string> {
   _asyncListeners = new Map<EventName, AsyncAnxiListener<EventName>[]>()
   _useContextMode = false;
   getContext?: () => any
+  on(name: EventName, handler: AnxiPlainHandler<EventName>, always?: boolean): AnxiPlainListener<EventName>
+  on(event: EventName | AnxiEvent<EventName>): void
   on(nameOrEvent: EventName | AnxiEvent<EventName>, handler?: AnxiPlainHandler<EventName>, always = false) {
     if (handler) {
       return this.addEventListener(nameOrEvent as EventName, handler, always);

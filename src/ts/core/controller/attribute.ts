@@ -15,6 +15,7 @@ export class AttributeController<A extends string = string> extends Controller {
   from(block: Record<A, number>) {
     for (const [p, v] of Object.entries(block) as [A, number][]) {
       const attr = this.attrs[p] = new Attribute(p, this);
+      this.attrArray.push(attr);
       attr.addCommonCaculator(() => {
         attr.base += v;
       });
@@ -36,7 +37,7 @@ export class AttributeController<A extends string = string> extends Controller {
       for (const attr of needComputeAttr) {
         const changed = attr.caculate();
         if (changed) {
-          for (const a of this.relyChain[attr.name]!) {
+          for (const a of this.relyChain[attr.name] ?? []) {
             nextNeedComputeAttr.add(a);
           }
         }

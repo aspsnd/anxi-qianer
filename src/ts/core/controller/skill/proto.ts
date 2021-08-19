@@ -1,9 +1,15 @@
 import { AttributeCaculator } from "../../attribute";
+import { Atom } from "../../chain/atom";
+import { AnxiEvent } from "../../e2/event";
 import { Skill } from "./skill";
 
-export class SkillProto<T extends {}, D extends {} = {}>{
+export interface HandlerGetter<D, T> {
+  (atom: Atom, skill: Skill<D, T>): (e: AnxiEvent) => void
+}
 
-  constructor(public name: string, public extra: T) { }
+export class SkillProto<T extends {} = {}, D extends {} = {}>{
+
+  constructor(public name: string, public extra?: T) { }
 
   _init: ((this: Skill<D>, data: D) => void) = () => { }
 
@@ -34,19 +40,21 @@ export class SkillProto<T extends {}, D extends {} = {}>{
   initedAttrs: {
     [attr: string]: {
       rely: string[],
-      caculator: AttributeCaculator
+      caculator: AttributeCaculator,
+      annoy: boolean
     }
   } = {}
-  initAttr(prop: string, rely: string[], caculator: AttributeCaculator) {
+  initAttr(prop: string, rely: string[], caculator: AttributeCaculator, annoy = false) {
     this.initedAttrs[prop] = {
       rely,
-      caculator
+      caculator,
+      annoy
     };
     return this;
   }
 
   exeHelper: ((this: Skill) => boolean) = () => true
-  canExecute(helper:((this: Skill) => boolean)) {
+  canExecute(helper: ((this: Skill) => boolean)) {
     this.exeHelper = helper;
     return this;
   }
@@ -54,6 +62,24 @@ export class SkillProto<T extends {}, D extends {} = {}>{
   waitTime = 0
   wait(time: number) {
     this.waitTime = time;
+    return this;
+  }
+
+  initedListens: {
+    event: string,
+    handler: HandlerGetter<D, T>
+  }[] = []
+  initListen(en: string, handlerGetter: HandlerGetter<D, T>) {
+    this.initedListens.push({
+      event: en,
+      handler: handlerGetter
+    })
+    return this;
+  }
+
+  datar: (this: Skill<D, T>) => D = () => ({} as D)
+  initData(datar: (this: Skill<D, T>) => D) {
+    this.datar = datar;
     return this;
   }
 

@@ -38,12 +38,16 @@ export class Rocker extends Container {
     this.once('added', () => {
       this.option.flowing ? this.initFlowingEvents() : this.initEvents();
     })
+    this.on('change', e => {
+      this.target = e;
+    })
   }
   autoCreateCircle(radius: number): Graphics {
     let graphics = new Graphics();
     graphics.lineStyle(5, 0xaaaaaa, .85).drawCircle(0, 0, radius);
     return graphics;
   }
+  target: [number, number] = [0, 0]
   initEvents() {
     this.on('touchstart', e => {
       this.emit('move', e);

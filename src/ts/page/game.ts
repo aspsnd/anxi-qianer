@@ -1,5 +1,6 @@
 import { Texture, TilingSprite } from "pixi.js";
 import { Page } from "../base/page";
+import { GameWorld } from "../game/world";
 import { GlobalEventer } from "../global/emiter";
 import { getAppSize } from "../global/resizer";
 
@@ -12,6 +13,7 @@ export class GamePage extends Page {
     })
   }
   speed = 5
+  world!: GameWorld
   init() {
     this.parent.parent.addChild(this.bg);
     let size = getAppSize();
@@ -19,13 +21,14 @@ export class GamePage extends Page {
     this.bg.height = size[1] << 1;
     GlobalEventer.on('appresize', ([w, h]: number[]) => {
       size = [w, h];
-      console.log(w, h)
       this.bg.width = size[0];
       this.bg.height = size[1] << 1;
     })
     GlobalEventer.on('onframe', () => {
       this.bg.y += this.speed;
       if (this.bg.y > 0) this.bg.y -= this.bg.texture.height;
-    })
+    });
+    const world = this.world = new GameWorld(this);
+
   }
 }

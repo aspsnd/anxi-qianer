@@ -1,11 +1,12 @@
 import { Atom } from "../../chain/atom";
+import type { AnxiPlainListener } from "../../e2/eventer";
 import { AnxiEventer } from "../../e2/eventer";
-import { SkillProto } from "./proto";
+import type { SkillProto } from "./proto";
 
-export class Skill<D extends {} = {}, T extends {} = {}> extends AnxiEventer {
+export class Skill<D extends Partial<{ [key: string]: any }> = {}, T extends {} = {}> extends AnxiEventer {
 
   name: string
-  data?: D
+  data!: D
   active: boolean
   cancel: SkillProto<T, D>['canceler']
   execute: SkillProto<T, D>['executer']
@@ -14,6 +15,8 @@ export class Skill<D extends {} = {}, T extends {} = {}> extends AnxiEventer {
   waitTime: SkillProto<T, D>['waitTime']
   waitUntil = -1
   inited = false
+  listeners: AnxiPlainListener<string>[] = []
+  removed = false
 
   constructor(public proto: SkillProto<T, D>) {
     super();
@@ -24,14 +27,21 @@ export class Skill<D extends {} = {}, T extends {} = {}> extends AnxiEventer {
     this.extra = proto.extra;
     this._initFunc = proto._init;
     this.waitTime = proto.waitTime;
-
   }
   init() {
     this.inited = true;
-
+    this.data = this.proto.datar.call(this);
+    this.proto.initedListens.forEach(il => {
+      let ecomt = this.atom.on(il.event, il.handler(this.atom, this), true);
+      this.listeners.push(ecomt);
+    });
+    this._initFunc.call(this, this.data);
   }
-  remove(){
-    
+  remove() {
+    this.removed = true;
+    for (const listener of this.listeners) {
+      this.atom.removeListener(listener);
+    }
   }
 
   atom!: Atom

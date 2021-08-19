@@ -22,10 +22,8 @@ export class Attribute<A extends string = string> {
   //最终属性值
   value = 0
 
-  // 建议以此更改base，extra
+  // 建议以此更改base,extra,baseRate,extraRate
   commonCaculators: AttributeCaculator[] = []
-  // 建议以此更改baseRate，extraRate
-  rateCaculators: AttributeCaculator[] = []
   /**
    * 直接更改finalBase、finalExtra
    * 实现避免属性的循环依赖，如技能:【增加血量5%的攻击力，增加攻击力200%的血量】
@@ -41,9 +39,6 @@ export class Attribute<A extends string = string> {
     this.baseRate = this.extraRate = 1;
 
     for (const caculator of this.commonCaculators) {
-      caculator(this.controller, this);
-    }
-    for (const caculator of this.rateCaculators) {
       caculator(this.controller, this);
     }
 
@@ -88,10 +83,11 @@ export class Attribute<A extends string = string> {
   addCommonCaculator(func: AttributeCaculator) {
     this.commonCaculators.push(func);
   }
-  addRateCaculator(func: AttributeCaculator) {
-    this.rateCaculators.push(func);
-  }
   addAnnoyCaculator(func: AttributeCaculator) {
     this.annoyCaculators.push(func);
+  }
+  removeCaculator(func: AttributeCaculator, annoy: boolean) {
+    const caculators = annoy ? this.annoyCaculators : this.commonCaculators;
+    caculators.splice(caculators.indexOf(func), 1);
   }
 }
