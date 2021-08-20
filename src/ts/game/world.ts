@@ -1,8 +1,9 @@
-import { Container } from "pixi.js";
+import { Container, Sprite, Texture } from "pixi.js";
 import { Atom } from "../core/chain/atom";
+import { Flyer } from "../core/chain/flyer";
 import { World } from "../core/chain/world";
 import { AttributeController } from "../core/controller/attribute";
-import { GameHeight } from "../global/config";
+import { GameHeight, GameWidth } from "../global/config";
 import { getAppSize } from "../global/resizer";
 import { RockerPanel } from "../player/rocker/panel";
 import { Rocker } from "../player/rocker/rocker";
@@ -37,6 +38,20 @@ export class GameWorld extends World {
     this.on('time', _ => {
       arrow.x += speedAttr.value * rocker.target[0];
       arrow.y += speedAttr.value * rocker.target[1];
-    })
+      if (this.time % 50 === 0) {
+        // let enemy = new Enemy(EnemyProto0);
+        // enemy.bind(this);
+        // this.atoms.push(enemy);
+        // this.container.addChild(enemy.view);
+        new Flyer(new Sprite(Texture.from('./res/image/qian.png')), flyer => {
+          this.flyerContainer.addChild(flyer.sprite);
+          flyer.x = GameWidth * Math.random();
+          flyer.bind(this);
+        }).useSpeed(time => time * .15 + 5).useDirection(90);
+      }
+    });
+
+
+
   }
 }

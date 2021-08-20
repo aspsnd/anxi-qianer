@@ -12,6 +12,7 @@ import { GameWorld } from "./world";
 export class Arrow extends Timer {
   view = new Sprite(Texture.from('./res/image/arrow/0.png'))
   proto = ArrowProtoGetter()
+  group = 0
   positionLimiter(x: number, y: number) {
     return x >= 0 && x <= GameWidth && y >= 0 && y <= GameHeight;
   }

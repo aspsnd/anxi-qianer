@@ -10,10 +10,9 @@ export const arrowAttack = new SkillProto('attack', {
   new Flyer(new Sprite(Texture.from('./res/image/0.png')), (flyer) => {
     flyer.bind(timer.world);
     timer.world.flyerContainer.addChild(flyer.sprite);
+    flyer.sprite.scale.set(2, 2)
     flyer.x = timer.x;
     flyer.y = timer.y;
-  }).useSpeed(8).useDirection(-90);
+  }).useSpeed((time: number) => 5 + time * .2).useDirection(-90);
 
-}).init(function(){
-  console.log(this);
-})
+});
