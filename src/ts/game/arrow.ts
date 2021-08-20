@@ -7,10 +7,14 @@ import { AnxiEvent } from "../core/e2/event";
 import { GameHeight, GameWidth } from "../global/config";
 import { SkillProtos } from "./data/skill/all";
 import { ArrowProtoGetter } from "./proto";
+import { GameWorld } from "./world";
 
 export class Arrow extends Timer {
   view = new Sprite(Texture.from('./res/image/arrow/0.png'))
   proto = ArrowProtoGetter()
+  positionLimiter(x: number, y: number) {
+    return x >= 0 && x <= GameWidth && y >= 0 && y <= GameHeight;
+  }
   constructor() {
     super();
     this.view.scale.set(3, 3);
@@ -34,9 +38,11 @@ export class Arrow extends Timer {
     return result;
   }
   set x(x: number) {
+    if (!this.positionLimiter(x, this.y)) return;
     this.view.x = x;
   }
   set y(y: number) {
+    if (!this.positionLimiter(this.x, y)) return;
     this.view.y = y;
   }
   get x() {
@@ -44,5 +50,11 @@ export class Arrow extends Timer {
   }
   get y() {
     return this.view.y;
+  }
+
+  world!: GameWorld
+  bind(world: GameWorld) {
+    super.bind(world);
+    this.world = world;
   }
 }

@@ -1,10 +1,10 @@
 import { AttributeCaculator } from "../../attribute";
-import { Atom } from "../../chain/atom";
+import { Timer } from "../../chain/timer";
 import { AnxiEvent } from "../../e2/event";
 import { Skill } from "./skill";
 
 export interface HandlerGetter<D, T> {
-  (atom: Atom, skill: Skill<D, T>): (e: AnxiEvent) => void
+  (timer: Timer, skill: Skill<D, T>): (e: AnxiEvent) => void
 }
 
 export class SkillProto<T extends {} = {}, D extends {} = {}>{

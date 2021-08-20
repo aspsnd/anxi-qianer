@@ -10,8 +10,10 @@ import { Arrow } from "./arrow";
 
 export class GameWorld extends World {
   atoms: Atom[] = []
+  flyerContainer = new Container();
   constructor(public container: Container) {
     super();
+    this.container.addChild(this.flyerContainer);
     const arrow = new Arrow();
     arrow.bind(this);
     this.atoms.push(arrow);

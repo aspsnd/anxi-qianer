@@ -1,4 +1,4 @@
-import { Atom } from "../../chain/atom";
+import { Timer } from "../../chain/timer";
 import type { AnxiPlainListener } from "../../e2/eventer";
 import { AnxiEventer } from "../../e2/eventer";
 import type { SkillProto } from "./proto";
@@ -32,7 +32,7 @@ export class Skill<D extends Partial<{ [key: string]: any }> = {}, T extends {} 
     this.inited = true;
     this.data = this.proto.datar.call(this);
     this.proto.initedListens.forEach(il => {
-      let ecomt = this.atom.on(il.event, il.handler(this.atom, this), true);
+      let ecomt = this.timer.on(il.event, il.handler(this.timer, this), true);
       this.listeners.push(ecomt);
     });
     this._initFunc.call(this, this.data);
@@ -40,13 +40,13 @@ export class Skill<D extends Partial<{ [key: string]: any }> = {}, T extends {} 
   remove() {
     this.removed = true;
     for (const listener of this.listeners) {
-      this.atom.removeListener(listener);
+      this.timer.removeListener(listener);
     }
   }
 
-  atom!: Atom
-  link<K extends Atom>(atom: K) {
-    this.atom = atom;
+  timer!: Timer
+  link<K extends Timer>(atom: K) {
+    this.timer = atom;
   }
 
 }

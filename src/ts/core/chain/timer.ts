@@ -5,10 +5,14 @@ export class Timer extends Atom {
   timespeed = 1
   time = 0
   _destroyed = false;
+  onTimer() {
+
+  }
   onTime() {
     this.time++;
     this.emit(new AnxiEvent('time', this.time));
     this.emit(new AnxiEvent(`time_${this.time}`, this.time));
+    this.onTimer();
     return this._destroyed;
   }
 
@@ -26,7 +30,9 @@ export class Timer extends Atom {
     });
   }
 
+  parent?: Timer
   bind(parent: Timer) {
+    this.parent = parent;
     parent.on('time', this.onTime.bind(this));
   }
   destroy() {
